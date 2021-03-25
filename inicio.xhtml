@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+xmlns:f="http://java.sun.com/jsf/core"
+xmlns:h="http://java.sun.com/jsf/html"
+xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+	<title>Gestion Ticket</title>
+</h:head>
+<h:body>
+<h:form id="form">
+	<div class="card crud-demo">
+		<p:growl id="messages" showDetail="true"/>
+        <p:toolbar>
+        		<!-- BOTON NUEVO USUARIO QUE INSTANCIA PARAMETROS DE USUARIO Y MUESTRA CUADRO DE DIALOGO -->
+        		<p:toolbarGroup>
+	                <p:selectOneMenu id="option" value="#{crudView.selectedOption}">
+	                    <f:selectItem itemLabel="All Tickets" itemValue="Option1"/>
+	                    <f:selectItem itemLabel="Open Tickets" itemValue="Option2"/>
+	                    <f:selectItem itemLabel="Closed Tickets" itemValue="Option3"/>
+	                    <f:selectItem itemLabel="Overdue Tickets" itemValue="Option4"/>
+	                    <f:selectItem itemLabel="Escalated Tickets" itemValue="Option5"/>
+	                    <f:selectItem itemLabel="High Priority Tickets" itemValue="Option6"/>
+	                </p:selectOneMenu>
+	                <!-- BOTON ELIMINAR MULTIPLES USUARIOS, SE HABILITA CUANDO VALIDA QUE EXISTE USUARIOS SELECCIONADOS (TRUE)-->
+	                <p:commandButton id="delete-usuarios-button" value="#{crudView.deleteButtonMessage}"
+	                                 icon="pi pi-trash" actionListener="#{crudView.deleteSelectedUsuarios}"
+	                                 styleClass="ui-button-danger" disabled="#{!crudView.hasSelectedUsuarios()}"
+	                                 update="@this">
+	                    <p:confirm header="Confirmacion" message="¿Eliminar usuarios seleccionados?"
+	                               icon="pi pi-exclamation-triangle"/>
+	                </p:commandButton>
+                </p:toolbarGroup>
+                <p:toolbarGroup align="right">
+	                <p:commandButton value="Hide statics" icon="pi pi-plus"
+	                                 update=":form:manage-usuario-content"
+	                                 styleClass="ui-button-success" style="margin-right: .5rem">
+	                    <p:resetInput target=":form:manage-usuario-content"/>
+	                </p:commandButton>
+	                <p:commandButton value="New Ticket" icon="pi pi-plus" actionListener="#{crudView.openNew}"
+	                                 update=":form:manage-usuario-content" oncomplete="PF('manageUsuarioDialog').show()"
+	                                 styleClass="ui-button-success" style="margin-right: .5rem">
+	                    <p:resetInput target=":form:manage-usuario-content"/>
+	                </p:commandButton>
+	            </p:toolbarGroup>
+            
+        </p:toolbar>
+        
+        <!-- DATATBLE CON LA INFORMACION DEL USUARIO REGISTRADO, FILTROS Y ORDEN POR MEDIO DEL status -->
+        <p:dataTable id="dt-usuarios" widgetVar="dtUsuarios" var="usuario" value="#{crudView.usuarios}"
+                     reflow="true" styleClass="usuarios-table"
+                     selection="#{crudView.selectedUsuarios}" rowKey="#{usuario.status}"  paginator="true"
+                     rows="10" rowSelectMode="add" paginatorPosition="bottom">
+        	<!-- f:facet name="header">
+                <div class="usuarios-table-header">
+                    <span style="font-weight: bold">USUARIOS</span>
+
+                    < FILTRO PARA BUSQUdealsTicket DE OCURRENCIAS>
+                    <span class="filter-container ui-input-icon-left">
+                        <i class="pi pi-search"></i>
+                        <p:inputText id="globalFilter" onkeyup="PF('dtUsuarios').filter()" placeholder="Buscar"/>
+                    </span>
+                </div>
+            </f:facet -->
+            
+            <p:ajax event="rowSelectCheckbox" update=":form:delete-usuarios-button"/>
+            <p:ajax event="rowSelect" update=":form:delete-usuarios-button"/>
+            <p:ajax event="rowUnselect" update=":form:delete-usuarios-button"/>
+            <p:ajax event="rowUnselectCheckbox" update=":form:delete-usuarios-button"/>
+            <p:ajax event="toggleSelect" update=":form:delete-usuarios-button"/>
+
+            <!-- COLUMNAS QUE SE VISUALIZAN EN EL DATATABLE -->
+            <p:column selectionMode="multiple" exportable="false"></p:column>
+            
+            <p:column headerText="Description" sortBy="#{usuario.descriptionTicket}" >
+                <h:outputText value="#{usuario.descriptionTicket}"/>
+            </p:column>
+            <p:column headerText="Status" sortBy="#{usuario.status}" >
+                <h:outputText value="#{usuario.status}"/>
+            </p:column>
+            <p:column headerText="Priority" sortBy="#{usuario.priorityTicket}">
+                <h:outputText value="#{usuario.priorityTicket}"/>
+            </p:column>
+            <p:column headerText="Case Owner" sortBy="#{usuario.caseOwner}">
+                <h:outputText value="#{usuario.caseOwner}"/>
+            </p:column>
+            <p:column headerText="Due Date" sortBy="#{usuario.dueDateTicket}">
+                <h:outputText value="#{usuario.dueDateTicket}"/>
+            </p:column>
+            <p:column headerText="Deals" sortBy="#{usuario.dealsTicket}">
+                <h:outputText value="#{usuario.dealsTicket}"/>
+            </p:column>
+            <p:column exportable="false">
+            	<!-- BOTON PARA EDITAR INFORMACION DEL CLIENTE -->
+                <p:commandButton value="Editar" update=":form:manage-usuario-content"
+                                 oncomplete="PF('manageUsuarioDialog').show()"
+                                 styleClass="edit-button rounded-button ui-button-success" process="@this">
+                    <f:setPropertyActionListener value="#{usuario}" target="#{crudView.selectedUsuario}"/>
+                    <p:resetInput target=":form:manage-usuario-content"/>
+                </p:commandButton>
+                <!-- BOTON PARA ELIMINAR CLIENTE -->
+                <p:commandButton class="ui-button-warning rounded-button" value="Borrar" process="@this"
+                                 oncomplete="PF('deleteUsuarioDialog').show()">
+                    <f:setPropertyActionListener value="#{usuario}" target="#{crudView.selectedUsuario}"/>
+                </p:commandButton>
+            </p:column>
+        </p:dataTable>
+        
+        <!--  CUADRO DE DIALOGO PARA CREACION Y ACTUALIZACION DEL CLIENTE-->
+        <p:dialog header="Detalle Usuario" showEffect="fade" modal="true"
+                  widgetVar="manageUsuarioDialog" responsive="true">
+			<p:outputPanel id="manage-usuario-content" class="ui-fluid">
+				<p:outputPanel rendered="#{not empty crudView.selectedUsuario}">
+					<div class="p-field">
+                        <p:outputLabel for="nombre">Description</p:outputLabel>
+                        <p:inputText id="nombre" value="#{crudView.selectedUsuario.descriptionTicket}" required="true"/>
+                    </div>
+                    <div class="p-field">
+                        <p:outputLabel for="priorityTicket">Priority</p:outputLabel>
+                        <p:inputText id="priorityTicket" value="#{crudView.selectedUsuario.priorityTicket}" required="true"/>
+                    </div>
+                    <div class="p-field">
+                        <p:outputLabel for="caseOwner">Case Owner</p:outputLabel>
+                        <p:inputText id="caseOwner" value="#{crudView.selectedUsuario.caseOwner}" required="true"/>
+                    </div>
+                    <div class="p-field">
+                        <p:outputLabel for="dealsTicket">Deals</p:outputLabel>
+                        <p:inputText id="dealsTicket" value="#{crudView.selectedUsuario.dealsTicket}" required="true"/>
+                    </div>
+                    <div class="p-field">
+                        <p:outputLabel for="dueDateTicket">Due Date</p:outputLabel>
+                        <p:datePicker id="dueDateTicket" value="#{crudView.selectedUsuario.dueDateTicket}" showTime="true"/>
+                    </div>
+				</p:outputPanel>
+			</p:outputPanel>
+			<!-- BOTONES PARA GUARDAR/ACTUALIZAR INFORMACION O CANCELAR -->
+			<f:facet name="footer">
+                <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{crudView.saveUsuario}"
+                                 update="manage-usuario-content" process="manage-usuario-content @this"/>
+                <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('manageUsuarioDialog').hide()"
+                                 class="ui-button-secondary"/>
+            </f:facet>
+        </p:dialog>
+        
+        <!-- CUADRO DE CONFIRMACION PARA ELIMINAR USUARIO -->
+        <p:confirmDialog widgetVar="deleteUsuarioDialog" showEffect="fade" width="300"
+                         message="¿Eliminar usuario?" header="Confirmacion" severity="warn">
+            <p:commandButton value="Si" icon="pi pi-check" actionListener="#{crudView.deleteUsuario}"
+                             process="@this" oncomplete="PF('deleteUsuarioDialog').hide()"/>
+            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
+                             onclick="PF('deleteUsuarioDialog').hide()"/>
+        </p:confirmDialog>
+
+        <p:confirmDialog global="true" showEffect="fade" width="300">
+            <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check"/>
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary"
+                             icon="pi pi-times"/>
+        </p:confirmDialog>
+	</div>
+</h:form>
+</h:body>
+</html>
