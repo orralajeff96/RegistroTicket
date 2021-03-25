@@ -29,7 +29,7 @@ xmlns:p="http://primefaces.org/ui">
 	                                 icon="pi pi-trash" actionListener="#{crudView.deleteSelectedUsuarios}"
 	                                 styleClass="ui-button-danger" disabled="#{!crudView.hasSelectedUsuarios()}"
 	                                 update="@this">
-	                    <p:confirm header="Confirmacion" message="Â¿Eliminar usuarios seleccionados?"
+	                    <p:confirm header="Confirmacion" message="¿Eliminar usuarios seleccionados?"
 	                               icon="pi pi-exclamation-triangle"/>
 	                </p:commandButton>
                 </p:toolbarGroup>
@@ -146,7 +146,7 @@ xmlns:p="http://primefaces.org/ui">
         
         <!-- CUADRO DE CONFIRMACION PARA ELIMINAR USUARIO -->
         <p:confirmDialog widgetVar="deleteUsuarioDialog" showEffect="fade" width="300"
-                         message="Â¿Eliminar usuario?" header="Confirmacion" severity="warn">
+                         message="¿Eliminar usuario?" header="Confirmacion" severity="warn">
             <p:commandButton value="Si" icon="pi pi-check" actionListener="#{crudView.deleteUsuario}"
                              process="@this" oncomplete="PF('deleteUsuarioDialog').hide()"/>
             <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
